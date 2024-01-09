@@ -10,7 +10,7 @@ This Bash script automates the setup of a WordPress site on an Nginx server. Fol
     bash script.sh
     ```
 
-2. Enter the desired site name and site URL (domain or server IP) as prompted.
+2. Enter the desired site name, site URL (domain or server IP), WordPress database name, WordPress database user, and WordPress database password as prompted.
 
 ### Installation Steps:
 
@@ -20,12 +20,11 @@ This Bash script automates the setup of a WordPress site on an Nginx server. Fol
 2. **Review the Automated Installation:**
 - The script will handle the following steps automatically:
 
-    **Update and Install Nginx:**
+    **Update and Upgrade:**
 
     ```bash
     sudo apt update
     sudo apt upgrade -y
-    sudo apt install -y nginx
     ```
 
    **Create Site Directory:**
@@ -56,8 +55,18 @@ This Bash script automates the setup of a WordPress site on an Nginx server. Fol
     sudo apt install -y nginx mysql-server php-fpm php-mysql
     ```
 
-   **Initialize MySQL and Create Database/User (commented out):**
-   - Uncomment and customize the MySQL setup in the script if automated configuration is desired.
+   **Initialize MySQL and Create WordPress Database/User:**
+
+    ```bash
+    sudo mysql_secure_installation
+    sudo mysql -u root -p <<MYSQL_SCRIPT
+    CREATE DATABASE $db_name;
+    CREATE USER '$db_user'@'localhost' IDENTIFIED BY '$db_password';
+    GRANT ALL PRIVILEGES ON $db_name.* TO '$db_user'@'localhost';
+    FLUSH PRIVILEGES;
+    EXIT;
+    MYSQL_SCRIPT
+    ```
 
    **Configure Nginx Virtual Host:**
 
@@ -84,10 +93,10 @@ This Bash script automates the setup of a WordPress site on an Nginx server. Fol
         deny all;
     }
     }" | sudo tee /etc/nginx/sites-available/$site_name
-
     ```
 
    **Create a Symbolic Link to sites-enabled:**
+
     ```bash
     sudo ln -s /etc/nginx/sites-available/$site_name /etc/nginx/sites-enabled/
     sudo systemctl restart nginx
