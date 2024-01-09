@@ -4,10 +4,9 @@
 read -p "Enter the desired site name: " site_name
 read -p "Enter the site URL (domain or server IP): " site_url
 
-# 1: Update and install Nginx
+# 1: Update and upgrade
 sudo apt update
 sudo apt upgrade -y
-sudo apt install -y nginx
 
 # 2: Make the directory for the new site
 sudo mkdir -p /var/www/$site_name
