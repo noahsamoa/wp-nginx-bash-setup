@@ -1,4 +1,4 @@
-# WordPress Site Setup Script
+# WordPress Nginx Setup Script
 
 ## Instructions
 
