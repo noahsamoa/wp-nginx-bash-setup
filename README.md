@@ -63,10 +63,28 @@ This Bash script automates the setup of a WordPress site on an Nginx server. Fol
     
         ```bash
         echo "server {
-           # Nginx configuration details (see provided configuration in the task list)
+        listen 80;
+        server_name $site_url;
+    
+        root /var/www/$site_name/wordpress;
+        index index.php index.html index.htm;
+    
+        location / {
+            try_files \$uri \$uri/ /index.php?\$args;
+        }
+    
+        location ~ \.php$ {
+            include snippets/fastcgi-php.conf;
+            fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
+            fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+            include fastcgi_params;
+        }
+    
+        location ~ /\.ht {
+            deny all;
+        }
         }" | sudo tee /etc/nginx/sites-available/$site_name
-        sudo ln -s /etc/nginx/sites-available/$site_name /etc/nginx/sites-enabled/
-        sudo systemctl restart nginx
+
         ```
     
        **Create a Symbolic Link to sites-enabled:**
