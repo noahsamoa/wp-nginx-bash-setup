@@ -27,7 +27,7 @@ sudo chmod -R 755 /var/www/$site_name
 # 6: Install Nginx, MySQL, PHP, and other utilities
 sudo apt install -y nginx mysql-server php-fpm php-mysql
 
-# # 7-9: Initialize MySQL and create WordPress database and user
+# # 7: Initialize MySQL and create WordPress database and user
 # sudo mysql_secure_installation
 # sudo mysql -u root -p <<MYSQL_SCRIPT
 # CREATE DATABASE wordpress;
@@ -37,8 +37,7 @@ sudo apt install -y nginx mysql-server php-fpm php-mysql
 # EXIT;
 # MYSQL_SCRIPT
 
-# 10-11: Configure Nginx virtual host
-# sudo nano /etc/nginx/sites-available/$site_name
+# 8: Configure Nginx virtual host
 # Add the Nginx configuration (see provided configuration in the task list)
 # Add the Nginx configuration
 echo "server {
@@ -64,11 +63,11 @@ echo "server {
     }
 }" | sudo tee /etc/nginx/sites-available/$site_name
 
-# 12: Create a symbolic link to sites-enabled
+# 9: Create a symbolic link to sites-enabled
 sudo ln -s /etc/nginx/sites-available/$site_name /etc/nginx/sites-enabled/
 sudo systemctl restart nginx
 
-# 13-17: Install Certbot, allow ports, configure Certbot, and set up cronjob
+# 10: Install Certbot, allow ports, configure Certbot, and set up cronjob
 sudo apt install -y python3-certbot-nginx
 sudo ufw allow 80
 sudo ufw allow 443
