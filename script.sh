@@ -4,30 +4,28 @@
 read -p "Enter the desired site name: " site_name
 read -p "Enter the site URL (domain or server IP): " site_url
 
-# 1: Set up A record for new site_name on registrar, pointing to host IP
-
-# 2: Update and install Nginx
+# 1: Update and install Nginx
 sudo apt update
 sudo apt upgrade -y
 sudo apt install -y nginx
 
-# 3: Make the directory for the new site
+# 2: Make the directory for the new site
 sudo mkdir -p /var/www/$site_name
 
-# 4: Download and extract WordPress
+# 3: Download and extract WordPress
 cd /tmp
 wget https://wordpress.org/latest.tar.gz
 sudo tar xf latest.tar.gz -C /var/www/
 sudo mv /var/www/wordpress /var/www/$site_name
 
-# 5: Ensure group ownership and permissions
+# 4: Ensure group ownership and permissions
 sudo chown -R www-data:www-data /var/www/$site_name
 sudo chmod -R 755 /var/www/$site_name
 
-# 6: Install Nginx, MySQL, PHP, and other utilities
+# 5: Install Nginx, MySQL, PHP, and other utilities
 sudo apt install -y nginx mysql-server php-fpm php-mysql
 
-# # 7: Initialize MySQL and create WordPress database and user
+# # 6: Initialize MySQL and create WordPress database and user
 # sudo mysql_secure_installation
 # sudo mysql -u root -p <<MYSQL_SCRIPT
 # CREATE DATABASE wordpress;
@@ -37,7 +35,7 @@ sudo apt install -y nginx mysql-server php-fpm php-mysql
 # EXIT;
 # MYSQL_SCRIPT
 
-# 8: Configure Nginx virtual host
+# 7: Configure Nginx virtual host
 # Add the Nginx configuration (see provided configuration in the task list)
 # Add the Nginx configuration
 echo "server {
@@ -63,11 +61,11 @@ echo "server {
     }
 }" | sudo tee /etc/nginx/sites-available/$site_name
 
-# 9: Create a symbolic link to sites-enabled
+# 8: Create a symbolic link to sites-enabled
 sudo ln -s /etc/nginx/sites-available/$site_name /etc/nginx/sites-enabled/
 sudo systemctl restart nginx
 
-# 10: Install Certbot, allow ports, configure Certbot, and set up cronjob
+# 9: Install Certbot, allow ports, configure Certbot, and set up cronjob
 sudo apt install -y python3-certbot-nginx
 sudo ufw allow 80
 sudo ufw allow 443
