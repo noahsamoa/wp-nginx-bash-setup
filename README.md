@@ -17,34 +17,72 @@ This Bash script automates the setup of a WordPress site on an Nginx server. Fol
 1. **Set up A Record:**
    - Manually configure an A record for the specified site name on your domain registrar, pointing to the host's IP.
 
-2. **Run the Script:**
-    ```bash
-    bash script.sh
-    ```
-    Enter the desired site name and site URL (domain or server IP) as prompted.
-
-3. **Review the Automated Installation:**
+2. **Review the Automated Installation:**
    - The script will handle the following steps automatically:
 
-   3.1. Update and install Nginx.
+        **Update and Install Nginx:**
+    
+        ```bash
+        sudo apt update
+        sudo apt upgrade -y
+        sudo apt install -y nginx
+        ```
+    
+       **Create Site Directory:**
+    
+        ```bash
+        sudo mkdir -p /var/www/$site_name
+        ```
+    
+       **Download and Extract WordPress:**
+    
+        ```bash
+        cd /tmp
+        wget https://wordpress.org/latest.tar.gz
+        sudo tar xf latest.tar.gz -C /var/www/
+        sudo mv /var/www/wordpress /var/www/$site_name
+        ```
+    
+       **Set Ownership and Permissions:**
+    
+        ```bash
+        sudo chown -R www-data:www-data /var/www/$site_name
+        sudo chmod -R 755 /var/www/$site_name
+        ```
+    
+       **Install Nginx, MySQL, PHP, and Utilities:**
+    
+        ```bash
+        sudo apt install -y nginx mysql-server php-fpm php-mysql
+        ```
+    
+       **Initialize MySQL and Create Database/User (commented out):**
+       - Uncomment and customize the MySQL setup in the script if automated configuration is desired.
+    
+       **Configure Nginx Virtual Host:**
+    
+        ```bash
+        echo "server {
+           # Nginx configuration details (see provided configuration in the task list)
+        }" | sudo tee /etc/nginx/sites-available/$site_name
+        sudo ln -s /etc/nginx/sites-available/$site_name /etc/nginx/sites-enabled/
+        sudo systemctl restart nginx
+        ```
+    
+       **Create a Symbolic Link to sites-enabled:**
+        ```bash
+        sudo ln -s /etc/nginx/sites-available/$site_name /etc/nginx/sites-enabled/
+        sudo systemctl restart nginx
+        ```
+    
+        **Install Certbot, Allow Ports, Configure Certbot, and Set Up Cronjob:**
+    
+        ```bash
+        sudo apt install -y python3-certbot-nginx
+        sudo ufw allow 80
+        sudo ufw allow 443
+        sudo certbot --nginx
+        (crontab -l 2>/dev/null; echo "0 0 1 * * certbot --nginx renew") | crontab -
+        ```
 
-   3.2. Create the site directory.
-
-   3.3. Download and extract WordPress.
-
-   3.4. Set ownership and permissions.
-
-   3.5. Install Nginx, MySQL, PHP, and other utilities.
-
-   3.6. [Commented Out] Initialize MySQL and create the WordPress database and user (uncomment and customize if needed).
-
-   3.7. Configure the Nginx virtual host.
-
-   3.8. Create a symbolic link to sites-enabled.
-
-   3.9. Install Certbot, allow ports, configure Certbot, and set up a cronjob for certificate renewal.
-
-4. **Finalize the Installation:**
-   - Feel free to customize the script or review logs in case of errors during execution.
-
-Feel free to customize the script further to fit your specific requirements.
+Feel free to customize the script to fit your specific requirements. For detailed information, refer to the script comments and logs in case of errors during execution.
