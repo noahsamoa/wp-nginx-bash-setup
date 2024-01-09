@@ -1,4 +1,4 @@
-# WordPress Nginx Setup Script
+# Wordpress Nginx Bash Setup Script
 
 This Bash script automates the setup of a WordPress site on an Nginx server. Follow the steps below for a seamless installation:
 
