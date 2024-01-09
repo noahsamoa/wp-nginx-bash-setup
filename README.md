@@ -1,77 +1,48 @@
-# Wordpress Nginx Bash Setup Script
+#!/bin/bash
 
-This Bash script automates the setup of a WordPress site on an Nginx server. Follow the steps below for a seamless installation:
+# Get user inputs for variables
+read -p "Enter the desired site name: " site_name
+read -p "Enter the site URL (domain or server IP): " site_url
+read -p "Enter the WordPress database name: " db_name
+read -p "Enter the WordPress database user: " db_user
+read -s -p "Enter the WordPress database password: " db_password
+echo
 
-### Usage:
+# 1: Update and install Nginx
+sudo apt update
+sudo apt upgrade -y
+sudo apt install -y nginx
 
-1. Run the script:
+# 2: Make the directory for the new site
+sudo mkdir -p /var/www/$site_name
 
-    ```bash
-    bash script.sh
-    ```
+# 3: Download and extract WordPress
+cd /tmp
+wget https://wordpress.org/latest.tar.gz
+sudo tar xf latest.tar.gz -C /var/www/
+sudo mv /var/www/wordpress /var/www/$site_name
 
-2. Enter the desired site name, site URL (domain or server IP), WordPress database name, WordPress database user, and WordPress database password as prompted.
+# 4: Ensure group ownership and permissions
+sudo chown -R www-data:www-data /var/www/$site_name
+sudo chmod -R 755 /var/www/$site_name
 
-### Installation Steps:
+# 5: Install Nginx, MySQL, PHP, and other utilities
+sudo apt install -y nginx mysql-server php-fpm php-mysql
 
-1. **Set up A Record:**
-- Manually configure an A record for the specified site name on your domain registrar, pointing to the host's IP.
+# 6: Initialize MySQL and create WordPress database and user
+sudo mysql_secure_installation
+sudo mysql -u root -p <<MYSQL_SCRIPT
+CREATE DATABASE $db_name;
+CREATE USER '$db_user'@'localhost' IDENTIFIED BY '$db_password';
+GRANT ALL PRIVILEGES ON $db_name.* TO '$db_user'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+MYSQL_SCRIPT
 
-2. **Review the Automated Installation:**
-- The script will handle the following steps automatically:
-
-    **Update and Upgrade:**
-
-    ```bash
-    sudo apt update
-    sudo apt upgrade -y
-    ```
-
-   **Create Site Directory:**
-
-    ```bash
-    sudo mkdir -p /var/www/$site_name
-    ```
-
-   **Download and Extract WordPress:**
-
-    ```bash
-    cd /tmp
-    wget https://wordpress.org/latest.tar.gz
-    sudo tar xf latest.tar.gz -C /var/www/
-    sudo mv /var/www/wordpress /var/www/$site_name
-    ```
-
-   **Set Ownership and Permissions:**
-
-    ```bash
-    sudo chown -R www-data:www-data /var/www/$site_name
-    sudo chmod -R 755 /var/www/$site_name
-    ```
-
-   **Install Nginx, MySQL, PHP, and Utilities:**
-
-    ```bash
-    sudo apt install -y nginx mysql-server php-fpm php-mysql
-    ```
-
-   **Initialize MySQL and Create WordPress Database/User:**
-
-    ```bash
-    sudo mysql_secure_installation
-    sudo mysql -u root -p <<MYSQL_SCRIPT
-    CREATE DATABASE $db_name;
-    CREATE USER '$db_user'@'localhost' IDENTIFIED BY '$db_password';
-    GRANT ALL PRIVILEGES ON $db_name.* TO '$db_user'@'localhost';
-    FLUSH PRIVILEGES;
-    EXIT;
-    MYSQL_SCRIPT
-    ```
-
-   **Configure Nginx Virtual Host:**
-
-    ```bash
-    echo "server {
+# 7: Configure Nginx virtual host
+# Add the Nginx configuration (see provided configuration in the task list)
+# Add the Nginx configuration
+echo "server {
     listen 80;
     server_name $site_url;
 
@@ -92,24 +63,15 @@ This Bash script automates the setup of a WordPress site on an Nginx server. Fol
     location ~ /\.ht {
         deny all;
     }
-    }" | sudo tee /etc/nginx/sites-available/$site_name
-    ```
+}" | sudo tee /etc/nginx/sites-available/$site_name
 
-   **Create a Symbolic Link to sites-enabled:**
+# 8: Create a symbolic link to sites-enabled
+sudo ln -s /etc/nginx/sites-available/$site_name /etc/nginx/sites-enabled/
+sudo systemctl restart nginx
 
-    ```bash
-    sudo ln -s /etc/nginx/sites-available/$site_name /etc/nginx/sites-enabled/
-    sudo systemctl restart nginx
-    ```
-
-    **Install Certbot, Allow Ports, Configure Certbot, and Set Up Cronjob:**
-
-    ```bash
-    sudo apt install -y python3-certbot-nginx
-    sudo ufw allow 80
-    sudo ufw allow 443
-    sudo certbot --nginx
-    (crontab -l 2>/dev/null; echo "0 0 1 * * certbot --nginx renew") | crontab -
-    ```
-
-Feel free to customize the script to fit your specific requirements. For detailed information, refer to the script comments and logs in case of errors during execution.
+# 9: Install Certbot, allow ports, configure Certbot, and set up cronjob
+sudo apt install -y python3-certbot-nginx
+sudo ufw allow 80
+sudo ufw allow 443
+sudo certbot --nginx
+(crontab -l 2>/dev/null; echo "0 0 1 * * certbot --nginx renew") | crontab -
