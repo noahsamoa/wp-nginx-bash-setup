@@ -16,10 +16,7 @@ sudo apt upgrade -y
 sudo mkdir -p /var/www/$site_name
 
 # 3: Download and extract WordPress
-cd /tmp
-wget https://wordpress.org/latest.tar.gz
-sudo tar xf latest.tar.gz -C /var/www/
-sudo mv /var/www/wordpress /var/www/$site_name
+sudo wget -O - https://wordpress.org/latest.tar.gz | sudo tar xz -C /var/www/ --transform="s/wordpress/$site_name/" && sudo rm /var/www/latest.tar.gz
 
 # 4: Ensure group ownership and permissions
 sudo chown -R www-data:www-data /var/www/$site_name
