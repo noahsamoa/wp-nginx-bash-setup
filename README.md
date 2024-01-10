@@ -61,8 +61,9 @@ This Bash script automates the setup of a WordPress site on an Nginx server. Fol
     sudo mysql_secure_installation
     sudo mysql -u root -p <<MYSQL_SCRIPT
     CREATE DATABASE $db_name;
-    CREATE USER '$db_user'@'localhost' IDENTIFIED BY '$db_password';
+    CREATE USER '$db_user'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY '$db_password';
     GRANT ALL PRIVILEGES ON $db_name.* TO '$db_user'@'localhost';
+    ALTER USER '$db_user'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY '$db_password';
     FLUSH PRIVILEGES;
     EXIT;
     MYSQL_SCRIPT
@@ -111,5 +112,7 @@ This Bash script automates the setup of a WordPress site on an Nginx server. Fol
     sudo certbot --nginx
     (crontab -l 2>/dev/null; echo "0 0 1 * * certbot --nginx renew") | crontab -
     ```
+
+### Script Customization:
 
 Feel free to customize the script to fit your specific requirements. For detailed information, refer to the script comments and logs in case of errors during execution.
