@@ -36,13 +36,15 @@ fi
 # 7: Initialize MySQL, create WordPress database, and user
 sudo mysql -u root -p"$mysql_root_password" <<MYSQL_SCRIPT
 CREATE DATABASE IF NOT EXISTS $db_name;
-CREATE USER IF NOT EXISTS '$db_user'@'localhost' IDENTIFIED BY '$db_password';
+CREATE USER IF NOT EXISTS '$db_user'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY '$db_password';
 GRANT ALL PRIVILEGES ON $db_name.* TO '$db_user'@'localhost';
+ALTER USER '$db_user'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY '$db_password';
 FLUSH PRIVILEGES;
 SHOW DATABASES LIKE '$db_name';
-SELECT user, host FROM mysql.user WHERE user='$db_user' AND host='localhost';
+SELECT user, host, plugin FROM mysql.user WHERE user='$db_user' AND host='localhost';
 EXIT;
 MYSQL_SCRIPT
+
 
 
 # 8: Configure Nginx virtual host
