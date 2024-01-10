@@ -3,6 +3,10 @@
 # Get user inputs for variables
 read -p "Enter the desired site name: " site_name
 read -p "Enter the site URL (domain or server IP): " site_url
+read -p "Enter the WordPress database name: " db_name
+read -p "Enter the WordPress database user: " db_user
+read -s -p "Enter the WordPress database password: " db_password
+echo
 
 # 1: Update and upgrade
 sudo apt update
@@ -24,18 +28,24 @@ sudo chmod -R 755 /var/www/$site_name
 # 5: Install Nginx, MySQL, PHP, and other utilities
 sudo apt install -y nginx mysql-server php-fpm php-mysql
 
-# # 6: Initialize MySQL and create WordPress database and user
-# sudo mysql_secure_installation
-# sudo mysql -u root -p <<MYSQL_SCRIPT
-# CREATE DATABASE wordpress;
-# CREATE USER 'wordpressuser'@'localhost' IDENTIFIED BY 'your_password';
-# GRANT ALL PRIVILEGES ON wordpress.* TO 'wordpressuser'@'localhost';
-# FLUSH PRIVILEGES;
-# EXIT;
-# MYSQL_SCRIPT
+# 6: Check if MySQL root password is provided, if not, prompt for it
+if [ -z "$mysql_root_password" ]; then
+    read -s -p "Enter MySQL root password: " mysql_root_password
+fi
 
-# 7: Configure Nginx virtual host
-# Add the Nginx configuration (see provided configuration in the task list)
+# 7: Initialize MySQL, create WordPress database, and user
+sudo mysql -u root -p"$mysql_root_password" <<MYSQL_SCRIPT
+CREATE DATABASE IF NOT EXISTS $db_name;
+CREATE USER IF NOT EXISTS '$db_user'@'localhost' IDENTIFIED BY '$db_password';
+GRANT ALL PRIVILEGES ON $db_name.* TO '$db_user'@'localhost';
+FLUSH PRIVILEGES;
+SHOW DATABASES LIKE '$db_name';
+SELECT user, host FROM mysql.user WHERE user='$db_user' AND host='localhost';
+EXIT;
+MYSQL_SCRIPT
+
+
+# 8: Configure Nginx virtual host
 # Add the Nginx configuration
 echo "server {
     listen 80;
@@ -60,11 +70,11 @@ echo "server {
     }
 }" | sudo tee /etc/nginx/sites-available/$site_name
 
-# 8: Create a symbolic link to sites-enabled
+# 9: Create a symbolic link to sites-enabled
 sudo ln -s /etc/nginx/sites-available/$site_name /etc/nginx/sites-enabled/
 sudo systemctl restart nginx
 
-# 9: Install Certbot, allow ports, configure Certbot, and set up cronjob
+# 10: Install Certbot, allow ports, configure Certbot, and set up cronjob
 sudo apt install -y python3-certbot-nginx
 sudo ufw allow 80
 sudo ufw allow 443
