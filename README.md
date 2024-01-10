@@ -36,10 +36,7 @@ This Bash script automates the setup of a WordPress site on an Nginx server. Fol
    **Download and Extract WordPress:**
 
     ```bash
-    cd /tmp
-    wget https://wordpress.org/latest.tar.gz
-    sudo tar xf latest.tar.gz -C /var/www/
-    sudo mv /var/www/wordpress /var/www/$site_name
+    sudo wget -O - https://wordpress.org/latest.tar.gz | sudo tar xz -C /var/www/ --transform="s/wordpress/$site_name/" && sudo rm /var/www/latest.tar.gz
     ```
 
    **Set Ownership and Permissions:**
