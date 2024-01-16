@@ -114,7 +114,3 @@ This Bash script automates the setup of a WordPress site on an Nginx server. Fol
     sudo certbot --nginx
     (crontab -l 2>/dev/null; echo "0 0 1 * * certbot --nginx renew") | crontab -
     ```
-
-### Script Customization:
-
-Feel free to customize the script to fit your specific requirements. For detailed information, refer to the script comments and logs in case of errors during execution.
